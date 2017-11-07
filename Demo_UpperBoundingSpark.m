@@ -1,3 +1,12 @@
+%% =========================================
+if isOctave
+addpath('./helper');
+graphics_toolkit('gnuplot');
+% pkg install -forge struct
+% pkg install -forge optim
+pkg load optim
+end
+
 %% ===================================
 % Creating the matrix A
 rng(120);

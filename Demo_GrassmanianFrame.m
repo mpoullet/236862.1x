@@ -1,4 +1,10 @@
 %% =========================================
+if isOctave
+addpath('./helper');
+graphics_toolkit('gnuplot');
+end
+
+%% =========================================
 % Create a matrix of size n*m such that its coherence is minimal
 n=50; m=100; 
 rng(10);
@@ -66,4 +72,3 @@ legend({'Initial Gram','Final Gram','Optimal \mu'});
 grid on; 
 axis([0 m^2-m 0 0.6]);
 set(gca,'FontSize',12);
-
