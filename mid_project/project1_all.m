@@ -1,46 +1,45 @@
+% Cleanup
+clear;
+clc;
+
 % In this project we demonstrate the OMP and BP algorithms, by running them 
 % on a set of signals and checking whether they provide the desired outcome
  
 %% Parameters
  
-% TODO: Set the length of the signal
-% Write your code here... n = ????;
+% Set the length of the signal
+n = 50;
 
+% Set the number of atoms in the dictionary
+m = 100;
 
-% TODO: Set the number of atoms in the dictionary
-% Write your code here... m = ????;
+% Set the maximum number of non-zeros in the generated vector
+s_max = 15;
 
+% Set the minimal entry value
+min_coeff_val = 1;
 
-% TODO: Set the maximum number of non-zeros in the generated vector
-% Write your code here... s_max = ????;
-
-
-% TODO: Set the minimal entry value
-% Write your code here... min_coeff_val = ????;
-
-
-% TODO: Set the maximal entry value
-% Write your code here... max_coeff_val = ????;
-
+% Set the maximal entry value
+max_coeff_val = 3;
 
 % Number of realizations
 num_realizations = 200;
 
 % Base seed: A non-negative integer used to reproduce the results
-% TODO: Set an arbitrary value for base seed
-% Write your code here... base_seed = ????;
-
+% Set an arbitrary value for base seed
+base_seed = 2;
 
 %% Create the dictionary
  
-% TODO: Create a random matrix A of size (n x m)
-% Write your code here... A = ????;
+% Create a random matrix A of size (n x m)
+A=randn(n,m);
 
- 
-% TODO: Normalize the columns of the matrix to have a unit norm
-% Write your code here... A_normalized = ????;
-
-
+% Normalize the columns of the matrix to have a unit norm
+% The most elegant solution would be to use 'A_normalized=normc(A)' but it is part of the Neural Network Toolbox
+A_normalized = A;
+for j=1:m
+    A_normalized(:,j) = A(:,j)/norm(A(:,j));
+end
 
 %% Create data and run OMP and BP
  
@@ -68,33 +67,30 @@ for s = 1:s_max
         % true_supp locations with values in the range of [min_coeff_val, max_coeff_val]
         x = zeros(m,1);
         
-        % TODO: Draw at random a true_supp vector
-        % Write your code here... true_supp = ????;
+        % Draw at random a true_supp vector
+        % i.e. we need s random indexes of the vector x
+        permutation = randperm(m);
+        true_supp = permutation(1:s);
 
+        % Draw at random the coefficients of x in true_supp locations
+        % i.e. the value of each entry is taken from a uniform distribution in [min_coeff_val, max_coeff_val] and multiplied by a random sign.
+        % The most elegant solution for the sign would be to use randsrc but it is part of the Communication System Toolbox
+        x(true_supp) = sign(randn(s,1)).*(min_coeff_val + (max_coeff_val - min_coeff_val)*rand(s,1));
         
-        % TODO: Draw at random the coefficients of x in true_supp locations
-        % Write your code here... x = ????;
+        % Create the signal b
+        b = A_normalized*x;
         
-        
-        % TODO: Create the signal b
-        % Write your code here... b = ????;
-        
-        
-        % TODO: Run OMP
-        % Write your code here... x_omp = omp(????, ????, ????);
-        
+        % Run OMP
+        x_omp = omp(A_normalized, b, s);
                 
-        % TODO: Compute the relative L2 error
-        % Write your code here... L2_error(s,experiment,1) = ????;
+        % Compute the relative L2 error
+        L2_error(s,experiment,1) = norm(x_omp-x)^2/norm(x)^2;
         
+        % Get the indices of the estimated support
+        estimated_supp = find(x_omp);
         
-        % TODO: Get the indices of the estimated support
-        % Write your code here... estimated_supp = ????;
-        
-        
-        % TODO: Compute the support recovery score
-        % Write your code here... support_error(s,experiment,1) = ????;
-        
+        % Compute the support recovery score
+        support_error(s,experiment,1) = 1-length(intersect(estimated_supp, true_supp))/max(length(estimated_supp), length(true_supp));
         
         % TODO: Run BP
         % Write your code here... x_lp = lp(????, ????, ????);
@@ -138,4 +134,3 @@ ylabel('Probability of Error in Support');
 set(gca,'FontSize',14);
 legend({'OMP','LP'});
 axis([0 s_max 0 1]);
-
