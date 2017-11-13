@@ -80,7 +80,7 @@ for s = 1:s_max
         % Create the signal b
         b = A_normalized*x;
         
-        % Run OMP
+        % Run OMP for s iterations
         x_omp = omp(A_normalized, b, s);
                 
         % Compute the relative L2 error
@@ -89,48 +89,47 @@ for s = 1:s_max
         % Get the indices of the estimated support
         estimated_supp = find(x_omp);
         
-        % Compute the support recovery score
+        % Compute the support recovery error
         support_error(s,experiment,1) = 1-length(intersect(estimated_supp, true_supp))/max(length(estimated_supp), length(true_supp));
         
-        % TODO: Run BP
-        % Write your code here... x_lp = lp(????, ????, ????);
+        % Run BP
+        x_lp = lp(A_normalized, b, tol_lp);
         
+        % Compute the relative L2 error
+        L2_error(s,experiment,2) = norm(x_lp-x)^2/norm(x_lp)^2;
         
-        % TODO: Compute the relative L2 error
-        % Write your code here... L2_error(s,experiment,2) = ????;
+        % Get the indices of the estimated support, where the
+        % coefficients are larger (in absolute value) than eps_coeff
+        estimated_supp = find(abs(x_lp)>eps_coeff);
         
-        
-        % TODO: Get the indices of the estimated support, where the
-        % coeffecients are larger (in absolute value) than eps_coeff
-        % Write your code here... estimated_supp = ????;
-        
-        
-        % TODO: Compute the support recovery error
-        % Write your code here... support_error(s,experiment,2) = ????;
-                
- 
+        % Compute the support recovery error
+        support_error(s,experiment,2) = 1-length(intersect(estimated_supp, true_supp))/max(length(estimated_supp), length(true_supp));
     end
     
 end
- 
-%% Display the results 
+
+%% Display and print the results 
  
 % Plot the average relative L2 error, obtained by the OMP and BP versus the cardinality
-figure(1); clf; 
+figure(1); clf;
 plot(1:s_max,mean(L2_error(1:s_max,:,1),2),'r','LineWidth',2); hold on;
 plot(1:s_max,mean(L2_error(1:s_max,:,2),2),'g','LineWidth',2); 
 xlabel('Cardinality of the true solution');
-ylabel('Average and Relative L_2-Error');
+ylabel('Average and relative L_2-error');
 set(gca,'FontSize',14);
 legend({'OMP','LP'});
 axis([0 s_max 0 1]);
+title('L_2-error vs. cardinality');
+print('L2_vs_cardinality','-deps');
  
 % Plot the average support recovery score, obtained by the OMP and BP versus the cardinality
-figure(2); clf; 
+figure(2); clf;
 plot(1:s_max,mean(support_error(1:s_max,:,1),2),'r','LineWidth',2); hold on;
 plot(1:s_max,mean(support_error(1:s_max,:,2),2),'g','LineWidth',2); 
 xlabel('Cardinality of the true solution');
-ylabel('Probability of Error in Support');
+ylabel('Probability of error in support');
 set(gca,'FontSize',14);
 legend({'OMP','LP'});
 axis([0 s_max 0 1]);
+title('Average support recovery vs. cardinality');
+print('support_vs_cardinality', '-deps');
