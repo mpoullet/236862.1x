@@ -121,7 +121,7 @@ set(gca,'FontSize',14);
 legend({'OMP','LP'});
 axis([0 s_max 0 1]);
 title('L_2-error vs. cardinality');
-print('L2_vs_cardinality','-deps');
+print('L2_vs_cardinality','-depsc');
  
 % Plot the average support recovery score, obtained by the OMP and BP versus the cardinality
 figure(2); clf;
@@ -133,4 +133,4 @@ set(gca,'FontSize',14);
 legend({'OMP','LP'});
 axis([0 s_max 0 1]);
 title('Average support recovery vs. cardinality');
-print('support_vs_cardinality', '-deps');
+print('support_vs_cardinality', '-depsc');
