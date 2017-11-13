@@ -76,12 +76,13 @@ for s = 1:s_max
         % i.e. the value of each entry is taken from a uniform distribution in [min_coeff_val, max_coeff_val] and multiplied by a random sign.
         % The most elegant solution for the sign would be to use randsrc but it is part of the Communication System Toolbox
         x(true_supp) = sign(randn(s,1)).*(min_coeff_val + (max_coeff_val - min_coeff_val)*rand(s,1));
+        x = sparse(x);
         
         % Create the signal b
         b = A_normalized*x;
         
         % Run OMP for s iterations
-        x_omp = omp(A_normalized, b, s);
+        x_omp = sparse(omp(A_normalized, b, s));
                 
         % Compute the relative L2 error
         L2_error(s,experiment,1) = norm(x_omp-x)^2/norm(x)^2;
@@ -93,7 +94,7 @@ for s = 1:s_max
         support_error(s,experiment,1) = 1-length(intersect(estimated_supp, true_supp))/max(length(estimated_supp), length(true_supp));
         
         % Run BP
-        x_lp = lp(A_normalized, b, tol_lp);
+        x_lp = sparse(lp(A_normalized, b, tol_lp));
         
         % Compute the relative L2 error
         L2_error(s,experiment,2) = norm(x_lp-x)^2/norm(x_lp)^2;
