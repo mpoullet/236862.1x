@@ -9,20 +9,20 @@ function [A_eff_normalized, atoms_norm] = compute_effective_dictionary(C, A)
 % Output:
 %  A_eff_normalized - The subsampled and normalized dictionary of size (p*n^2 x m)
 %  atoms_norm - A vector of length m, containing the norm of each sampled atom
- 
- 
+
+
 % TODO: Compute the subsampled dictionary
 % Write your code here... A_eff = ????;
 
- 
+
 % TODO: Compute the norm of each atom
 % Write your code here...  atoms_norm = ????;
 
- 
+
 % TODO: Normalize the columns of A_eff, avoid division by zero
 % Write your code here...  A_eff_normalized = ????;
 
 
- 
+
 end
 
