@@ -6,40 +6,32 @@ clear; clc;
 
 %% Parameters
 
-% TODO: Set the size of the desired image is (n x n)
-% Write your code here... n = ????;
+% Set the size of the desired image is (n x n)
+n = 40;
 
+% Set the number of atoms
+m = 2*n^2;
 
-% TODO: Set the number of atoms
-% Write your code here... m = ????;
+% Set the percentage of known data
+p = 0.4;
 
+% Set the noise std
+sigma = 0.05;
 
-% TODO: Set the percentage of known data
-% Write your code here... p = ????;
-
-
-% TODO: Set the noise std
-% Write your code here... sigma = ????;
-
-
-% TODO: Set the cardinality of the representation
-% Write your code here... true_k = ????;
-
+% Set the cardinality of the representation
+true_k = 10;
 
 % Base seed - A non-negative integer used to reproduce the results
-% TODO: Set an arbitrary value for base_seed
-% Write your code here... base_seed = ????;
-
+% Set an arbitrary value for base_seed
+base_seed = 7;
 
 % Run the different algorithms for num_experiments and average the results
-num_experiments = 10;
-
+num_experiments = 1;
 
 %% Create a dictionary A of size (n^2 x m) for Mondrian-like images
 
-% TODO: initialize A with zeros
-% Write your code here... A = ????;
-
+% initialize A with zeros
+A = zeros(n^2, m);
 
 % In this part we construct A by creating its atoms one by one, where
 % each atom is a rectangle of random size (in the range 5-20 pixels),
@@ -53,20 +45,27 @@ for i=1:size(A,2)
     empty_atom_flag = 1;
     while empty_atom_flag
 
-        % TODO: Create a rectangle of random size and position
-        % Write your code here... atom = ????;
-
-
-
+        % Start with a zero image of size n-by-n pixels
+        atom = zeros(n,n);
+        % Create a rectangle of random size in the range [5-20] pixels per axis
+        rect_w = randi([5,20]);
+        rect_h = randi([5,20]);
+        % each pixel with random value -1 or +1: rect = 2*randi(2, rect_w, rect_h)-3;
+        % all pixels with the same value 0 or 1: rect = randi([0,1])*ones(rect_w, rect_h);
+        % all pixels with the same value -1 or 1:
+        rect = (2*randi(2)-3)*ones(rect_w, rect_h);
+        % Get a position (uniformly spread in the area of the image) where to insert the rectangle
+        rect_x = randi([1,n-size(rect,1)]);
+        rect_y = randi([1,n-size(rect,2)]);
+        % Insert the rectangle in the image
+        atom(rect_x:rect_x+rect_w-1, rect_y:rect_y+rect_h-1) = rect;
 
         % Verify that the atom is not empty or nearly so
         if norm(atom(:)) > 1e-5
             empty_atom_flag = 0;
 
-            % TODO: Normalize the atom
-            % Write your code here... atom = ????;
-
-
+            % Normalize the atom
+            atom = atom/norm(atom);
 
             % Assign the generated atom to the matrix A
             A(:,i) = atom(:);
@@ -75,6 +74,9 @@ for i=1:size(A,2)
     end
 
 end
+
+% Sparsify A to save memory
+A = sparse(A);
 
 %% Oracle Inpainting
 
@@ -89,17 +91,20 @@ for experiment = 1:num_experiments
 
     % Construct data
     [x0, b0, noise_std, b0_noisy, C, b] = construct_data(A, p, sigma, true_k);
+    
+    % Compute the subsampled dictionary
+    A_eff = C*A;
 
-    % TODO: Compute the subsampled dictionary
-    % Write your code here... A_eff = ????;
-
-
-    % TODO: Compute the oracle estimation
-    % Write your code here... x_oracle = ????;
-
+    % Compute the oracle estimation via LS
+    x_oracle = pinv(A_eff)*b;
 
     % Compute the estimated image
     b_oracle = A*x_oracle;
+    
+    % Show b_oracle
+    figure();
+    imagesc(reshape(full(b_oracle),n,n));
+    colormap(gray); axis equal;
 
     % Compute the PSNR
     PSNR_oracle(experiment) = compute_psnr(b0, b_oracle);
@@ -108,6 +113,8 @@ end
 
 % Display the average PSNR of the oracle
 fprintf('Oracle: Average PSNR = %.3f\n', mean(PSNR_oracle));
+
+return
 
 %% Greedy: OMP Inpainting
 

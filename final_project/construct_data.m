@@ -16,7 +16,6 @@ function [x0, b0, noise_std, b0_noisy, C, b] = construct_data(A, p, sigma, k)
 %  C  - Sampling matrix of size (p*n^2 x n^2), 0 < p <= 1
 %  b  - The corrupted image (noisy and subsampled version of b0) of size p*n^2
 
-
 % Get the size of the image and number of atoms
 [n_squared, m] = size(A);
 n = sqrt(n_squared);
@@ -24,55 +23,63 @@ n = sqrt(n_squared);
 %% generate a Mondrian image
 %  by drawing at random a sparse vector x0 of length m with cardinality k
 
-% TODO: Draw at random the locations of the non-zeros
-% Write your code here... nnz_locs = ????;
+% Draw at random the locations of the non-zeros
+permutation = randperm(m);
+nnz_locs = permutation(1:k);
 
+% Draw at random the values of the coefficients from a Gaussian distribution
+% mean = 0 and standard-deviation = 1
+nnz_vals = randn(k, 1);
 
-% TODO: Draw at random the values of the coefficients
-% Write your code here... nnz_vals = ????;
+% Create a k-sparse vector x0 of length m given the nnz_locs and nnz_vals
+x0 = zeros(m,1);
+x0(nnz_locs) = nnz_vals;
 
+% Given A and x0, compute the signal b0
+b0 = A*x0;
 
-% TODO: Create a k-sparse vector x0 of length m given the nnz_locs and nnz_vals
-% Write your code here... x0 = ????;
-
-
-% TODO: Given A and x0, compute the signal b0
-% Write your code here... b0 = ????;
-
+% Show b0
+figure();
+imagesc(reshape(full(b0),n,n));
+colormap(gray); axis equal;
 
 %% Create the measured data vector b of size n^2
 
-% TODO: Compute the dynamic range
-% Write your code here... dynamic_range = ????;
-
+% Compute the dynamic range
+dynamic_range = max(b0)-min(b0);
 
 % Create a noise vector
 noise_std = sigma*dynamic_range;
 noise = noise_std*randn(n^2,1);
 
-% TODO: Add noise to the original image
-% Write your code here... b0_noisy = ????;
+% Add noise to the original image
+b0_noisy = b0 + noise;
 
-
+% Show b0_noisy
+figure();
+imagesc(reshape(full(b0_noisy),n,n));
+colormap(gray); axis equal;
 
 %% Create the sampling matrix C of size (p*n^2 x n^2), 0 < p <= 1
 
-% TODO: Create an identity matrix of size (n^2 x n^2)
-% Write your code here... I = ????;
+% Create an identity matrix of size (n^2 x n^2)
+I = eye(n^2);
 
+% Draw at random the indices of rows to be kept
+permutation = randperm(n^2);
+keep_inds = permutation(1:p*n^2);
 
-% TODO: Draw at random the indices of rows to be kept
-% Write your code here... keep_inds = ????;
-
-
-% TODO: Create the sampling matrix C of size (p*n^2 x n^2) by keeping rows
+% Create the sampling matrix C of size (p*n^2 x n^2) by keeping rows
 % from I that correspond to keep_inds
-% Write your code here... C = ????;
+C = I(keep_inds,:);
 
+% Create a subsampled version of the noisy image
+b = C*b0_noisy;
 
-% TODO: Create a subsampled version of the noisy image
-% Write your code here... b = ????;
-
+% Show b
+figure();
+imagesc(reshape(full(C'*b),n,n));
+colormap(gray); axis equal;
 
 end
 

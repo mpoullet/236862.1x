@@ -8,20 +8,18 @@ function [ psnr_val ] = compute_psnr(y_original, y_estimated)
 % Output:
 %  psnr_val - The Peak Signal to Noise Ratio (PSNR) score
 
+n = length(y_original);
+
 y_original = y_original(:);
 y_estimated = y_estimated(:);
 
-% TODO: Compute the dynamic range
-% Write your code here... dynamic_range = ????;
+% Compute the dynamic range
+dynamic_range = max(y_original)-min(y_original);
 
+% Compute the Mean Squared Error (MSE)
+mse_val = mean(abs(y_estimated-y_original).^2);
 
-% TODO: Compute the Mean Squared Error (MSE)
-% Write your code here... mse_val = ????;
-
-
-% TODO: Compute the PSNR
-% Write your code here... psnr_val = ????;
-
+% Compute the PSNR
+psnr_val = 10*log(dynamic_range^2/mse_val);
 
 end
-
