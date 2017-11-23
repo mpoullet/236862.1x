@@ -38,11 +38,6 @@ x0(nnz_locs) = nnz_vals;
 % Given A and x0, compute the signal b0
 b0 = A*x0;
 
-% Show b0
-figure();
-imagesc(reshape(full(b0),n,n));
-colormap(gray); axis equal;
-
 %% Create the measured data vector b of size n^2
 
 % Compute the dynamic range
@@ -54,11 +49,6 @@ noise = noise_std*randn(n^2,1);
 
 % Add noise to the original image
 b0_noisy = b0 + noise;
-
-% Show b0_noisy
-figure();
-imagesc(reshape(full(b0_noisy),n,n));
-colormap(gray); axis equal;
 
 %% Create the sampling matrix C of size (p*n^2 x n^2), 0 < p <= 1
 
@@ -76,10 +66,4 @@ C = I(keep_inds,:);
 % Create a subsampled version of the noisy image
 b = C*b0_noisy;
 
-% Show b
-figure();
-imagesc(reshape(full(C'*b),n,n));
-colormap(gray); axis equal;
-
 end
-

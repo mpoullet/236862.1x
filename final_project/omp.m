@@ -6,14 +6,37 @@ function x = omp(CA, b, k)
 %
 % The solution is returned in the vector x
 
-% Initialize the vector x
+% Reference implementation: slide 7 of SubSection_03_01_Part2.pdf
+
+%% Initialization
+
+% initialize the vector x with 0
 x = zeros(size(CA,2),1);
 
-% TODO: Implement the OMP algorithm
-% Write your code here... x = ????;
+% residual error
+r = b-CA*x;
 
+% support
+support = [];
 
+%% Main iteration
+for i = 1:k
+% Step 1: compute all the errors
+E = CA'*r;
 
+% Step 2: select the next atom,
+[~, next_atom] = max(abs(E));
 
+% Step 3: update the support
+support = sort([support next_atom]);
+
+% Step 4: solve the LS problem and update the provisional solution
+A_s = CA(:, support);
+x_i = pinv(A_s)*b;
+x(support,:) = x_i;
+
+% Step 5: update the residual error
+r = b-CA*x;
 end
 
+end

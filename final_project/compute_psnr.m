@@ -8,8 +8,6 @@ function [ psnr_val ] = compute_psnr(y_original, y_estimated)
 % Output:
 %  psnr_val - The Peak Signal to Noise Ratio (PSNR) score
 
-n = length(y_original);
-
 y_original = y_original(:);
 y_estimated = y_estimated(:);
 

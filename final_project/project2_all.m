@@ -50,10 +50,9 @@ for i=1:size(A,2)
         % Create a rectangle of random size in the range [5-20] pixels per axis
         rect_w = randi([5,20]);
         rect_h = randi([5,20]);
-        % each pixel with random value -1 or +1: rect = 2*randi(2, rect_w, rect_h)-3;
-        % all pixels with the same value 0 or 1: rect = randi([0,1])*ones(rect_w, rect_h);
-        % all pixels with the same value -1 or 1:
-        rect = (2*randi(2)-3)*ones(rect_w, rect_h);
+        % All pixels with the same value -1 or 1:
+        rect_v = (2*randi(2)-3);
+        rect = rect_v*ones(rect_w, rect_h);
         % Get a position (uniformly spread in the area of the image) where to insert the rectangle
         rect_x = randi([1,n-size(rect,1)]);
         rect_y = randi([1,n-size(rect,2)]);
@@ -78,6 +77,36 @@ end
 % Sparsify A to save memory
 A = sparse(A);
 
+% Generate two clean images and their corresponding noisy and corrupted versions
+for report_idx = 1:2
+
+    % Construct data
+    [x0, b0, noise_std, b0_noisy, C, b] = construct_data(A, p, sigma, true_k);
+
+    % Show b0
+    figure();
+    imagesc(reshape(full(b0),n,n));
+    colormap(gray); axis equal;
+    title(['Clean image ' num2str(report_idx)]);
+    print(['Clean_image_' num2str(report_idx)],'-deps');
+
+    % Show b0_noisy
+    figure();
+    imagesc(reshape(full(b0_noisy),n,n));
+    colormap(gray); axis equal;
+    title(['Noisy image ' num2str(report_idx)]);
+    print(['Noisy_image_' num2str(report_idx)],'-deps');
+
+    % Show b
+    figure();
+    % Multiplying by C' fills the missing pixels with zeros
+    imagesc(reshape(full(C'*b),n,n));
+    colormap(gray); axis equal;
+    title(['Corrupted image ' num2str(report_idx)]);
+    print(['Corrupted_image_' num2str(report_idx)],'-deps');
+
+end
+
 %% Oracle Inpainting
 
 % Allocate a vector to store the PSNR results
@@ -95,16 +124,14 @@ for experiment = 1:num_experiments
     % Compute the subsampled dictionary
     A_eff = C*A;
 
-    % Compute the oracle estimation via LS
-    x_oracle = pinv(A_eff)*b;
+    % Compute the oracle estimation via LS, assuming that the true support of x0 is known
+    support_x0 = find(x0);    
+    x_oracle = oracle(A_eff, b, support_x0);
+    
+    %x_oracle = pinv(A_eff)*b;
 
     % Compute the estimated image
     b_oracle = A*x_oracle;
-    
-    % Show b_oracle
-    figure();
-    imagesc(reshape(full(b_oracle),n,n));
-    colormap(gray); axis equal;
 
     % Compute the PSNR
     PSNR_oracle(experiment) = compute_psnr(b0, b_oracle);
@@ -114,7 +141,36 @@ end
 % Display the average PSNR of the oracle
 fprintf('Oracle: Average PSNR = %.3f\n', mean(PSNR_oracle));
 
-return
+% Show clean, noisy, corrupted and Oracle-based reconstruction
+
+% Show b0
+figure();
+imagesc(reshape(full(b0),n,n));
+colormap(gray); axis equal;
+title(['Oracle clean image ' num2str(experiment)]);
+print(['Oracle_clean_image_' num2str(experiment)],'-deps');
+
+% Show b0_noisy
+figure();
+imagesc(reshape(full(b0_noisy),n,n));
+colormap(gray); axis equal;
+title(['Oracle noisy image ' num2str(experiment)]);
+print(['Oracle_noisy_image_' num2str(experiment)],'-deps');
+
+% Show b
+figure();
+% Multiplying by C' fills the missing pixels with zeros
+imagesc(reshape(full(C'*b),n,n));
+colormap(gray); axis equal;
+title(['Oracle corrupted image ' num2str(experiment)]);
+print(['Oracle_corrupted_image_' num2str(experiment)],'-deps');
+
+% Show b_oracle
+figure();
+imagesc(reshape(full(b_oracle),n,n));
+colormap(gray); axis equal;
+title(['Oracle reconstruction ' num2str(experiment)]);
+print(['Oracle_reconstruction_' num2str(experiment)],'-deps');
 
 %% Greedy: OMP Inpainting
 
@@ -168,10 +224,42 @@ fprintf('OMP: Average PSNR = %.3f\n', mean(PSNR_omp_best_k));
 
 % Plot the average PSNR vs. k
 psnr_omp_k = mean(PSNR_omp,1);
-figure(1); plot(1:max_k, psnr_omp_k, '-*r', 'LineWidth', 2);
+figure(); plot(1:max_k, psnr_omp_k, '-*r', 'LineWidth', 2);
 ylabel('PSNR [dB]'); xlabel('k'); grid on;
 title(['OMP: PSNR vs. k, True Cardinality = ' num2str(true_k)]);
 
+% Show clean, noisy, corrupted and OMP-based reconstruction
+
+% Show b0
+figure();
+imagesc(reshape(full(b0),n,n));
+colormap(gray); axis equal;
+title(['OMP clean image ' num2str(experiment)]);
+print(['OMP_clean_image_' num2str(experiment)],'-deps');
+
+% Show b0_noisy
+figure();
+imagesc(reshape(full(b0_noisy),n,n));
+colormap(gray); axis equal;
+title(['OMP noisy image ' num2str(experiment)]);
+print(['OMP_noisy_image_' num2str(experiment)],'-deps');
+
+% Show b
+figure();
+% Multiplying by C' fills the missing pixels with zeros
+imagesc(reshape(full(C'*b),n,n));
+colormap(gray); axis equal;
+title(['OMP corrupted image ' num2str(experiment)]);
+print(['OMP_corrupted_image_' num2str(experiment)],'-deps');
+
+% Show b_omp
+figure();
+imagesc(reshape(full(b_omp),n,n));
+colormap(gray); axis equal;
+title(['OMP reconstruction ' num2str(experiment)]);
+print(['OMP_reconstruction_' num2str(experiment)],'-deps');
+
+return
 
 %% Convex relaxation: Basis Pursuit Inpainting via ADMM
 
