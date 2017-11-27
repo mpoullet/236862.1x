@@ -259,8 +259,6 @@ colormap(gray); axis equal;
 title(['OMP reconstruction ' num2str(experiment)]);
 print(['OMP_reconstruction_' num2str(experiment)],'-deps');
 
-return
-
 %% Convex relaxation: Basis Pursuit Inpainting via ADMM
 
 % We will sweep over various values of lambda
@@ -360,22 +358,16 @@ ylabel('PSNR [dB]'); xlabel('Algorithm');
 
 %% Run OMP with fixed cardinality and increased percentage of known data
 
-% TODO: Set the noise std
-% Write your code here... sigma = ????;
+% Set the noise std
+sigma = 0.05;
 
+% Set the cardinality of the representation
+true_k = 5;
 
-
-% TODO: Set the cardinality of the representation
-% Write your code here... true_k = ????;
-
-
-
-% TODO: Create a vector of increasing values of p in the range [0.4 1]. The
+% Create a vector of increasing values of p in the range [0.4 1]. The
 % length of this vector equal to num_values_of_p = 7.
-% Write your code here... num_values_of_p = ????; p_vec = ????;
-
-
-
+num_values_of_p = 7;
+p_vec = linspace(0.4,1,num_values_of_p);
 
 % We will repeat the experiment for num_experiments realizations
 num_experiments = 100;
@@ -407,10 +399,8 @@ for experiment = 1:num_experiments
         % Compute the estimated image
         b_omp = A*x_omp;
 
-        % TODO: Compute the MSE of the estimate
-        % Write your code here... cur_mse = ????;
-
-
+        % Compute the MSE of the estimate
+        cur_mse = 1/size(A,1)*norm(b0-b_omp)^2;
 
         % Compute the current normalized MSE and aggregate
         mse_omp_p(p_ind) = mse_omp_p(p_ind) + cur_mse / noise_std^2;
@@ -427,24 +417,18 @@ figure(5); plot(p_vec, mse_omp_p, '-*r', 'LineWidth', 2);
 ylabel('Normalized-MSE'); xlabel('p'); grid on;
 title(['OMP with k = ' num2str(true_k) ', Normalized-MSE vs. p'])
 
-
 %% Run OMP with fixed cardinality and increased noise level
 
-% TODO: Set the cardinality of the representation
-% Write your code here... true_k = ????;
+% Set the cardinality of the representation
+true_k = 5;
 
+% Set the percentage of known data
+p = 0.5;
 
-
-% TODO: Set the percentage of known data
-% Write your code here... p = ????;
-
-
-
-% TODO: Create a vector of increasing values of sigma in the range [0.15 0.5].
+% Create a vector of increasing values of sigma in the range [0.15 0.5].
 % The length of this vector equal to num_values_of_sigma = 10.
-% Write your code here... num_values_of_sigma = ????; sigma_vec = ????;
-
-
+num_values_of_sigma = 10;
+sigma_vec = linspace(0.15,0.5,num_values_of_sigma);
 
 % Repeat the experiment for num_experiments realizations
 num_experiments = 100;
@@ -476,10 +460,8 @@ for experiment = 1:num_experiments
         % Compute the estimated image
         b_omp = A*x_omp;
 
-        % TODO: Compute the MSE of the estimate
-        % Write your code here... cur_mse = ????;
-
-
+        % Compute the MSE of the estimate
+        cur_mse = 1/size(A,1)*norm(b0-b_omp)^2;
 
         % Compute the current normalized MSE and aggregate
         mse_omp_sigma(sigma_ind) = mse_omp_sigma(sigma_ind) + cur_mse / noise_std^2;
@@ -496,5 +478,3 @@ figure(6); plot(sigma_vec, mse_omp_sigma, '-*r', 'LineWidth', 2);
 ylim([0.5*min(mse_omp_sigma) 5*max(mse_omp_sigma)]);
 ylabel('Normalized-MSE'); xlabel('sigma'); grid on;
 title(['OMP with k = ' num2str(true_k) ', Normalized-MSE vs. sigma']);
-
-
