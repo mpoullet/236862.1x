@@ -127,8 +127,6 @@ for experiment = 1:num_experiments
     % Compute the oracle estimation via LS, assuming that the true support of x0 is known
     support_x0 = find(x0);    
     x_oracle = oracle(A_eff, b, support_x0);
-    
-    %x_oracle = pinv(A_eff)*b;
 
     % Compute the estimated image
     b_oracle = A*x_oracle;
