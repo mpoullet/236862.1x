@@ -18,6 +18,6 @@ dynamic_range = max(y_original)-min(y_original);
 mse_val = mean(abs(y_estimated-y_original).^2);
 
 % Compute the PSNR
-psnr_val = 10*log(dynamic_range^2/mse_val);
+psnr_val = 10*log10(dynamic_range^2/mse_val);
 
 end
