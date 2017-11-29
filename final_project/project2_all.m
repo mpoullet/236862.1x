@@ -26,7 +26,7 @@ true_k = 10;
 base_seed = 7;
 
 % Run the different algorithms for num_experiments and average the results
-num_experiments = 1;
+num_experiments = 10;
 
 %% Create a dictionary A of size (n^2 x m) for Mondrian-like images
 
@@ -84,26 +84,26 @@ for report_idx = 1:2
     [x0, b0, noise_std, b0_noisy, C, b] = construct_data(A, p, sigma, true_k);
 
     % Show b0
-    figure();
+    figure('visible','off');
     imagesc(reshape(full(b0),n,n));
     colormap(gray); axis equal;
     title(['Clean image ' num2str(report_idx)]);
-    print(['Clean_image_' num2str(report_idx)],'-deps');
+    print(['Clean_image_' num2str(report_idx)],'-depsc');
 
     % Show b0_noisy
-    figure();
+    figure('visible','off');
     imagesc(reshape(full(b0_noisy),n,n));
     colormap(gray); axis equal;
     title(['Noisy image ' num2str(report_idx)]);
-    print(['Noisy_image_' num2str(report_idx)],'-deps');
+    print(['Noisy_image_' num2str(report_idx)],'-depsc');
 
     % Show b
-    figure();
+    figure('visible','off');
     % Multiplying by C' fills the missing pixels with zeros
     imagesc(reshape(full(C'*b),n,n));
     colormap(gray); axis equal;
     title(['Corrupted image ' num2str(report_idx)]);
-    print(['Corrupted_image_' num2str(report_idx)],'-deps');
+    print(['Corrupted_image_' num2str(report_idx)],'-depsc');
 
 end
 
@@ -138,37 +138,6 @@ end
 
 % Display the average PSNR of the oracle
 fprintf('Oracle: Average PSNR = %.3f\n', mean(PSNR_oracle));
-
-% Show clean, noisy, corrupted and Oracle-based reconstruction
-
-% Show b0
-figure();
-imagesc(reshape(full(b0),n,n));
-colormap(gray); axis equal;
-title(['Oracle clean image ' num2str(experiment)]);
-print(['Oracle_clean_image_' num2str(experiment)],'-deps');
-
-% Show b0_noisy
-figure();
-imagesc(reshape(full(b0_noisy),n,n));
-colormap(gray); axis equal;
-title(['Oracle noisy image ' num2str(experiment)]);
-print(['Oracle_noisy_image_' num2str(experiment)],'-deps');
-
-% Show b
-figure();
-% Multiplying by C' fills the missing pixels with zeros
-imagesc(reshape(full(C'*b),n,n));
-colormap(gray); axis equal;
-title(['Oracle corrupted image ' num2str(experiment)]);
-print(['Oracle_corrupted_image_' num2str(experiment)],'-deps');
-
-% Show b_oracle
-figure();
-imagesc(reshape(full(b_oracle),n,n));
-colormap(gray); axis equal;
-title(['Oracle reconstruction ' num2str(experiment)]);
-print(['Oracle_reconstruction_' num2str(experiment)],'-deps');
 
 %% Greedy: OMP Inpainting
 
@@ -222,40 +191,9 @@ fprintf('OMP: Average PSNR = %.3f\n', mean(PSNR_omp_best_k));
 
 % Plot the average PSNR vs. k
 psnr_omp_k = mean(PSNR_omp,1);
-figure(); plot(1:max_k, psnr_omp_k, '-*r', 'LineWidth', 2);
+figure(1); plot(1:max_k, psnr_omp_k, '-*r', 'LineWidth', 2);
 ylabel('PSNR [dB]'); xlabel('k'); grid on;
 title(['OMP: PSNR vs. k, True Cardinality = ' num2str(true_k)]);
-
-% Show clean, noisy, corrupted and OMP-based reconstruction
-
-% Show b0
-figure();
-imagesc(reshape(full(b0),n,n));
-colormap(gray); axis equal;
-title(['OMP clean image ' num2str(experiment)]);
-print(['OMP_clean_image_' num2str(experiment)],'-deps');
-
-% Show b0_noisy
-figure();
-imagesc(reshape(full(b0_noisy),n,n));
-colormap(gray); axis equal;
-title(['OMP noisy image ' num2str(experiment)]);
-print(['OMP_noisy_image_' num2str(experiment)],'-deps');
-
-% Show b
-figure();
-% Multiplying by C' fills the missing pixels with zeros
-imagesc(reshape(full(C'*b),n,n));
-colormap(gray); axis equal;
-title(['OMP corrupted image ' num2str(experiment)]);
-print(['OMP_corrupted_image_' num2str(experiment)],'-deps');
-
-% Show b_omp
-figure();
-imagesc(reshape(full(b_omp),n,n));
-colormap(gray); axis equal;
-title(['OMP reconstruction ' num2str(experiment)]);
-print(['OMP_reconstruction_' num2str(experiment)],'-deps');
 
 %% Convex relaxation: Basis Pursuit Inpainting via ADMM
 
@@ -316,8 +254,9 @@ fprintf('BP via ADMM: Average PSNR = %.3f\n', mean(PSNR_admm_best_lambda));
 figure(2); semilogx(lambda_vec, psnr_admm_lambda, '-*r', 'LineWidth', 2);
 ylabel('PSNR [dB]'); xlabel('\lambda'); grid on;
 title('BP via ADMM: PSNR vs. \lambda');
+print('PSNR_lambda', '-depsc');
 
-%% show the results
+%% Show the results
 
 % Show the images obtained in the last realization, along with their PSNR
 figure(3);
@@ -344,6 +283,43 @@ title(['OMP, PSNR = ' num2str(compute_psnr(b0, best_b_omp))]);
 subplot(2,3,6); imagesc(reshape(full(best_b_admm),n,n));
 colormap(gray); axis equal;
 title(['BP-ADMM, PSNR = ' num2str(compute_psnr(b0, best_b_admm))]);
+
+% Store images for the report
+figure('visible','off');
+imagesc(reshape(full(b0),n,n));
+colormap(gray); axis equal;
+title(['Original Image, k = ' num2str(true_k)]);
+print('Clean_image', '-depsc');
+
+figure('visible','off');
+imagesc(reshape(full(b0_noisy),n,n));
+colormap(gray); axis equal;
+title(['Noisy Image, PSNR = ' num2str(compute_psnr(b0, b0_noisy))]);
+print('Noisy_image', '-depsc');
+
+figure('visible','off');
+imagesc(reshape(full(C'*b),n,n));
+colormap(gray); axis equal;
+title(['Corrupted Image, PSNR = ' num2str(compute_psnr(b0, C'*b))]);
+print('Corrupted_image', '-depsc');
+
+figure('visible','off');
+imagesc(reshape(full(b_oracle),n,n));
+colormap(gray); axis equal;
+title(['Oracle, PSNR = ' num2str(compute_psnr(b0, b_oracle))]);
+print('Oracle_reconstruction', '-depsc');
+
+figure('visible','off');
+imagesc(reshape(full(best_b_omp),n,n));
+colormap(gray); axis equal;
+title(['OMP, PSNR = ' num2str(compute_psnr(b0, best_b_omp))]);
+print('OMP_reconstruction', '-depsc');
+
+figure('visible','off');
+imagesc(reshape(full(best_b_admm),n,n));
+colormap(gray); axis equal;
+title(['BP-ADMM, PSNR = ' num2str(compute_psnr(b0, best_b_admm))]);
+print('BP_reconstruction', '-depsc');
 
 %% Compare the results
 
@@ -414,6 +390,7 @@ mse_omp_p = mse_omp_p / num_experiments;
 figure(5); plot(p_vec, mse_omp_p, '-*r', 'LineWidth', 2);
 ylabel('Normalized-MSE'); xlabel('p'); grid on;
 title(['OMP with k = ' num2str(true_k) ', Normalized-MSE vs. p'])
+print('MSE_p', '-depsc');
 
 %% Run OMP with fixed cardinality and increased noise level
 
@@ -476,3 +453,4 @@ figure(6); plot(sigma_vec, mse_omp_sigma, '-*r', 'LineWidth', 2);
 ylim([0.5*min(mse_omp_sigma) 5*max(mse_omp_sigma)]);
 ylabel('Normalized-MSE'); xlabel('sigma'); grid on;
 title(['OMP with k = ' num2str(true_k) ', Normalized-MSE vs. sigma']);
+print('MSE_sigma', '-depsc');
