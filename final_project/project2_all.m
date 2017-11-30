@@ -23,7 +23,7 @@ true_k = 10;
 
 % Base seed - A non-negative integer used to reproduce the results
 % Set an arbitrary value for base_seed
-base_seed = 7;
+base_seed = 5;
 
 % Run the different algorithms for num_experiments and average the results
 num_experiments = 10;
@@ -194,6 +194,7 @@ psnr_omp_k = mean(PSNR_omp,1);
 figure(1); plot(1:max_k, psnr_omp_k, '-*r', 'LineWidth', 2);
 ylabel('PSNR [dB]'); xlabel('k'); grid on;
 title(['OMP: PSNR vs. k, True Cardinality = ' num2str(true_k)]);
+print('PSNR_k', '-depsc');
 
 %% Convex relaxation: Basis Pursuit Inpainting via ADMM
 
@@ -258,32 +259,6 @@ print('PSNR_lambda', '-depsc');
 
 %% Show the results
 
-% Show the images obtained in the last realization, along with their PSNR
-figure(3);
-subplot(2,3,1); imagesc(reshape(full(b0),n,n));
-colormap(gray); axis equal;
-title(['Original Image, k = ' num2str(true_k)]);
-
-subplot(2,3,2); imagesc(reshape(full(b0_noisy),n,n));
-colormap(gray); axis equal;
-title(['Noisy Image, PSNR = ' num2str(compute_psnr(b0, b0_noisy))]);
-
-subplot(2,3,3); imagesc(reshape(full(C'*b),n,n));
-colormap(gray); axis equal;
-title(['Corrupted Image, PSNR = ' num2str(compute_psnr(b0, C'*b))]);
-
-subplot(2,3,4); imagesc(reshape(full(b_oracle),n,n));
-colormap(gray); axis equal;
-title(['Oracle, PSNR = ' num2str(compute_psnr(b0, b_oracle))]);
-
-subplot(2,3,5); imagesc(reshape(full(best_b_omp),n,n));
-colormap(gray); axis equal;
-title(['OMP, PSNR = ' num2str(compute_psnr(b0, best_b_omp))]);
-
-subplot(2,3,6); imagesc(reshape(full(best_b_admm),n,n));
-colormap(gray); axis equal;
-title(['BP-ADMM, PSNR = ' num2str(compute_psnr(b0, best_b_admm))]);
-
 % Store images for the report
 figure('visible','off');
 imagesc(reshape(full(b0),n,n));
@@ -320,6 +295,32 @@ imagesc(reshape(full(best_b_admm),n,n));
 colormap(gray); axis equal;
 title(['BP-ADMM, PSNR = ' num2str(compute_psnr(b0, best_b_admm))]);
 print('BP_reconstruction', '-depsc');
+
+% Show the images obtained in the last realization, along with their PSNR
+figure(3);
+subplot(2,3,1); imagesc(reshape(full(b0),n,n));
+colormap(gray); axis equal;
+title(['Original Image, k = ' num2str(true_k)]);
+
+subplot(2,3,2); imagesc(reshape(full(b0_noisy),n,n));
+colormap(gray); axis equal;
+title(['Noisy Image, PSNR = ' num2str(compute_psnr(b0, b0_noisy))]);
+
+subplot(2,3,3); imagesc(reshape(full(C'*b),n,n));
+colormap(gray); axis equal;
+title(['Corrupted Image, PSNR = ' num2str(compute_psnr(b0, C'*b))]);
+
+subplot(2,3,4); imagesc(reshape(full(b_oracle),n,n));
+colormap(gray); axis equal;
+title(['Oracle, PSNR = ' num2str(compute_psnr(b0, b_oracle))]);
+
+subplot(2,3,5); imagesc(reshape(full(best_b_omp),n,n));
+colormap(gray); axis equal;
+title(['OMP, PSNR = ' num2str(compute_psnr(b0, best_b_omp))]);
+
+subplot(2,3,6); imagesc(reshape(full(best_b_admm),n,n));
+colormap(gray); axis equal;
+title(['BP-ADMM, PSNR = ' num2str(compute_psnr(b0, best_b_admm))]);
 
 %% Compare the results
 
