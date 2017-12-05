@@ -18,7 +18,7 @@ atoms_norm = sqrt(sum(A_eff.*A_eff, 1));
 
 % Normalize the columns of A_eff, avoid division by zero
 zeros_idx = atoms_norm == 0;
-atoms_norm(zeros_idx) = 1;
+atoms_norm(zeros_idx) = eps;
 A_eff_normalized = A_eff ./ atoms_norm;
 
 end
