@@ -1,4 +1,4 @@
-% Quiz 5: Greedy and Relexation Methods 
+% Quiz 5: Greedy and Relexation Methods
 
 A = [ 0.1817   0.5394 -0.1197  0.6404;
       0.6198   0.1994  0.0946 -0.3121;

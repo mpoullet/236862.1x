@@ -120,12 +120,12 @@ for experiment = 1:num_experiments
 
     % Construct data
     [x0, b0, noise_std, b0_noisy, C, b] = construct_data(A, p, sigma, true_k);
-    
+
     % Compute the subsampled dictionary
     A_eff = C*A;
 
     % Compute the oracle estimation via LS, assuming that the true support of x0 is known
-    support_x0 = find(x0);    
+    support_x0 = find(x0);
     x_oracle = oracle(A_eff, b, support_x0);
 
     % Compute the estimated image

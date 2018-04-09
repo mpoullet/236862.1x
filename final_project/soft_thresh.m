@@ -8,7 +8,7 @@ x(k) = z(k) + lambda;
 
 % Find then elements which absolute values are less than lambda
 k = find(abs(z) < lambda);
-x(k) = 0; 
+x(k) = 0;
 
 % Find the elements that are larger than +lambda
 k = find(z >= lambda);
